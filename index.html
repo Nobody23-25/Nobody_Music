@@ -1,0 +1,113 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoBody - Discover My World</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background: #1a1a1a; color: #fff; line-height: 1.4; position: relative; min-height: 100vh; }
+        .hero { 
+            width: 100%; 
+            height: 100vh; 
+            background: 
+                radial-gradient(circle at center, rgba(26, 26, 26, 0) 50%, #1a1a1a 100%), 
+                url('https://i.imgur.com/wy40L5J.jpg') no-repeat center center/contain; 
+            position: relative; 
+        }
+        .hero::after { 
+            content: ''; 
+            position: absolute; 
+            bottom: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 200px; 
+            background: linear-gradient(to bottom, rgba(0,0,0,0), #1a1a1a); 
+        }
+        .links { padding: 40px 20px; text-align: center; }
+        .links h1 { font-size: 3em; color: #ff4444; text-transform: uppercase; margin-bottom: 20px; letter-spacing: 2px; }
+        .social-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 30px; }
+        .social-links a { text-decoration: none; color: #fff; background: #2c2c2c; padding: 10px 20px; border-radius: 20px; font-size: 1.1em; transition: background 0.2s; }
+        .social-links a:hover { background: #ff4444; }
+        .message { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            text-align: center; 
+            font-family: 'Courier New', Courier, monospace; 
+            font-size: 1em; 
+            line-height: 1.6; 
+        }
+        .message p { text-indent: 20px; }
+        .footer-text { 
+            position: absolute; 
+            bottom: 10px; 
+            right: 10px; 
+            font-family: 'Courier New', Courier, monospace; 
+            font-size: 0.9em; 
+            color: #fff; 
+        }
+        @media (max-width: 600px) { 
+            .hero { height: 60vh; } 
+            .links h1 { font-size: 2em; } 
+            .social-links a { font-size: 1em; padding: 8px 15px; } 
+            .message { font-size: 0.9em; padding: 0 15px; }
+            .footer-text { font-size: 0.8em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero"></div>
+    <div class="links">
+        <h1>NoBody</h1>
+        <div class="social-links">
+            <a href="https://www.tiktok.com/@nobodymusx?_t=ZP-8woopiJa27L&_r=1" target="_blank">TikTok</a>
+            <a href="https://www.instagram.com/nobodymusic23?igsh=c3kyNDlmNTJqeHA5&utm_source=qr" target="_blank">Instagram</a>
+            <a href="https://open.spotify.com/artist/7MQ0QJkhcRK8xpStGhoAsd?si=ZmRp1bVXRXSyrf3vLMyIfg" target="_blank">Spotify</a>
+            <a href="https://music.apple.com/us/artist/nobody/1817238303" target="_blank">Apple Music</a>
+        </div>
+        <div class="message">
+            <p>Congratulations, you found me. Welcome to the place where you can get to know me. My dream, like many others, is to make a living doing something I love. Every stream, view, comment, subscribe, and share gets me one step closer to a dream come true. I pray that this message finds you well.<br>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 & nobody</p>
+        </div>
+    </div>
+    <div class="footer-text">Colossians 3:23-24</div>
+</body>
+</html>
