@@ -1,43 +1,4 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -63,6 +24,22 @@
             height: 200px; 
             background: linear-gradient(to bottom, rgba(0,0,0,0), #1a1a1a); 
         }
+        .countdown-section { 
+            padding: 20px; 
+            text-align: center; 
+            background: #1a1a1a; 
+        }
+        .countdown-section h2 { 
+            font-family: 'Courier New', Courier, monospace; 
+            font-size: 2em; 
+            color: #ff4444; 
+            margin-bottom: 10px; 
+        }
+        #countdown { 
+            font-family: 'Courier New', Courier, monospace; 
+            font-size: 1.5em; 
+            color: #fff; 
+        }
         .links { padding: 40px 20px; text-align: center; }
         .links h1 { font-size: 3em; color: #ff4444; text-transform: uppercase; margin-bottom: 20px; letter-spacing: 2px; }
         .social-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 30px; }
@@ -87,6 +64,8 @@
         }
         @media (max-width: 600px) { 
             .hero { height: 60vh; } 
+            .countdown-section h2 { font-size: 1.5em; } 
+            #countdown { font-size: 1.2em; } 
             .links h1 { font-size: 2em; } 
             .social-links a { font-size: 1em; padding: 8px 15px; } 
             .message { font-size: 0.9em; padding: 0 15px; }
@@ -96,6 +75,10 @@
 </head>
 <body>
     <div class="hero"></div>
+    <div class="countdown-section">
+        <h2>Don't Let Me Go</h2>
+        <div id="countdown"></div>
+    </div>
     <div class="links">
         <h1>NoBody</h1>
         <div class="social-links">
@@ -109,5 +92,30 @@
         </div>
     </div>
     <div class="footer-text">Colossians 3:23-24</div>
+
+    <script>
+        // Set the countdown date to July 4, 2025, 3:00 PM EDT
+        const countDownDate = new Date("Jul 4, 2025 15:00:00 EDT").getTime();
+
+        // Update the countdown every second
+        const countdownFunction = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = countDownDate - now;
+
+            // Calculate days, hours, minutes
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+
+            // Display the countdown
+            document.getElementById("countdown").innerHTML = days + "d " + hours + "h " + minutes + "m";
+
+            // If the countdown is over, display a message
+            if (distance < 0) {
+                clearInterval(countdownFunction);
+                document.getElementById("countdown").innerHTML = "The Moment Has Arrived";
+            }
+        }, 1000);
+    </script>
 </body>
 </html>
